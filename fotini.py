@@ -28,7 +28,7 @@ class Data(ctypes.Structure):
     ]
 
 
-GaussianPhoton = namedtuple('GaussianPhoton', 't_0 ω_0 Δ')
+GaussianPhoton = namedtuple('GaussianPhoton', 't_0 ω_0 Δ n')
 BeamSplitter = namedtuple('BeamSplitter', 'R T')
 
 class Setup:
@@ -98,21 +98,34 @@ class Setup:
         self.inputs = set(self.input_indices.keys()) - dependent
 
     def calculate(self, photon_inputs):
+        # TODO:
+        # 1) "automatically" select an integration range based on photon inputs
+        # If photons are too far apart, than the integral might become very small
+
         expr = 1
         ω_0 = []
         Δ = []
         t_0 = []
+        operators = []
+        input_indices = set()
         for i, (photon, input_index) in enumerate(photon_inputs):
             if input_index not in self.inputs:
                 raise ValueError("Attempting to create a photon at a non-input node")
-            ω_0.append(photon.ω_0)
-            Δ.append(photon.Δ)
-            t_0.append(photon.t_0)
+            elif input_index in input_indices:
+                raise ValueError(f"Multiple photon specifications for input {input_index}")
+            input_indices.add(input_index)
 
-            expr *= self.expanded_operators[self.input_indices[input_index]]
-            t = symbols(f't_{i}', commutative=False)
-            expr *= t
+            for _ in range(photon.n):
+                ω_0.append(photon.ω_0)
+                Δ.append(photon.Δ)
+                t_0.append(photon.t_0)
+                operators.append(input_index)
+                expr *= self.expanded_operators[self.input_indices[input_index]]
+                t = symbols(f't_{i}', commutative=False)
+                expr *= t
 
+
+        normalization = 1/utils.get_normalization_coefficient(operators)
         expr = expand(expr)
         ω_0 = np.array(ω_0, dtype=ctypes.c_double)
         Δ = np.array(Δ, dtype=ctypes.c_double)
@@ -121,7 +134,7 @@ class Setup:
         count_mapping = defaultdict(list)
         output_mapping = {v:i for i, v in enumerate(self.outputs)}
         for term in expr.args:
-            coefficient = term.args[0]
+            coefficient = float(term.args[0])
             order = []
             count = [0]*len(output_mapping)
             for subterm in term.args[1:]:
@@ -131,6 +144,8 @@ class Setup:
                     # Maybe check if this is right? Because we do define the output order
                     # somewhat arbitrarily
                     order.append(output_mapping[output_index])
+                elif subterm == sympy.I:
+                    coefficient *= 1j
             count_mapping[tuple(count)].append((coefficient, tuple(order)))
 
 
@@ -141,7 +156,7 @@ class Setup:
             permutations = []
             for coefficient, orig_order in terms:
                 coefficients.append(coefficient)
-                norms.append(utils.get_normalization_coefficient(orig_order))
+                norms.append(normalization*utils.get_normalization_coefficient(orig_order))
                 permutations.append(utils.generate_permutation(orig_order))
 
             return coefficients, norms, permutations
@@ -149,37 +164,35 @@ class Setup:
         count_probabilities = {}
         data = Data()
         user_data = ctypes.cast(ctypes.pointer(data), ctypes.c_void_p)
-        data.t_0 = (ctypes.c_double*len(self.inputs)).from_buffer(t_0);
-        data.ω_0 = (ctypes.c_double*len(self.inputs)).from_buffer(ω_0);
-        data.Δ = (ctypes.c_double*len(self.inputs)).from_buffer(Δ);
+        data.t_0 = (ctypes.c_double*len(t_0)).from_buffer(t_0);
+        data.ω_0 = (ctypes.c_double*len(ω_0)).from_buffer(ω_0);
+        data.Δ = (ctypes.c_double*len(Δ)).from_buffer(Δ);
 
         lib = ctypes.CDLL(os.path.abspath('integrands.so'))
         lib.β.restype = ctypes.c_double
         lib.β.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.c_void_p)
         func = LowLevelCallable(lib.β, user_data)
+        n_photons = t_0.shape[0]
         for count, terms in count_mapping.items():
             coefficients, norms, permutations = generate_term(terms)
-            print(f'[Integrating for {count}]')
+
             n_permutation = len(permutations[0])
             coeffs_real = np.array(coefficients).real.astype(ctypes.c_double)
             coeffs_imag = np.array(coefficients).imag.astype(ctypes.c_double)
             norms = np.array(norms, dtype=ctypes.c_double)
-            permutations = np.stack(permutations).astype(ctypes.c_int).reshape(-1, 4)
+            permutations = np.stack(permutations).astype(ctypes.c_int).reshape(-1, n_photons)
 
             data.n_terms = ctypes.c_int(len(terms));
             data.norms = (ctypes.c_double * len(terms)).from_buffer(norms)
             data.coeffs_real = (ctypes.c_double * len(terms)).from_buffer(coeffs_real)
             data.coeffs_imag = (ctypes.c_double * len(terms)).from_buffer(coeffs_imag)
-            data.permutations = (ctypes.c_int*len(permutations)).from_buffer(permutations)
-            data.n_permutation = n_permutation
-            data.printed = ctypes.c_int(0)
 
-            t1 = time.time()
+            data.permutations = (ctypes.c_int*permutations.size).from_buffer(permutations)
+            data.n_permutation = n_permutation
+
             count_probabilities[count] = nquad(
                     func, 
-                    [(-np.inf, np.inf)]*4, 
+                    [(-np.inf, np.inf)]*n_photons
             )[0]
-            t2 = time.time()
-            print(f'Probability = {count_probabilities[count]}\nTime = {t2 - t1:3f}s')
 
         return count_probabilities

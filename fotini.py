@@ -1,4 +1,3 @@
-from sympy import MatrixSymbol
 from sympy import symbols, simplify, expand
 import sympy
 import numpy as np
@@ -32,6 +31,7 @@ GaussianPhoton = namedtuple('GaussianPhoton', 't_0 ω_0 Δ n')
 BeamSplitter = namedtuple('BeamSplitter', 'R T')
 
 class Setup:
+    c = 299792458.0 # Speed of light in meters/second
     def __init__(self, nodes, edges):
         self.nodes = nodes
         self.edges = edges
@@ -55,8 +55,8 @@ class Setup:
         self.expanded_operators = {}
         self.outputs = set()
         dependent = set()
+        self.k = symbols('k')
         def resolve(operator, visited=set()):
-            #print(f'resolve(operator={operator}, visited={visited})')
             if operator in visited:
                 raise ValueError("Edges form a cycle")
 
@@ -70,10 +70,12 @@ class Setup:
                 bs = self.nodes[node]
                 a_o0 = resolve(self.output_indices[(node, 0)], visited | {operator})
                 a_o1 = resolve(self.output_indices[(node, 1)], visited | {operator})
+                R = complex(bs.R)
+                T = complex(bs.T)
                 if input_index == 0:
-                    a_cur = bs.T * a_o0 + bs.R * a_o1
+                    a_cur = T.conjugate() * a_o0 + R.conjugate() * a_o1
                 else:
-                    a_cur = bs.T * a_o1 + bs.R * a_o0
+                    a_cur = T.conjugate() * a_o1 + R.conjugate() * a_o0
                 self.expanded_operators[operator] = a_cur
                 return a_cur
             elif operator in self.output_operators:
@@ -88,16 +90,16 @@ class Setup:
                     self.expanded_operators[operator] = operator
                     self.outputs.add((node, output_index))
 
-                connection_node, input_index = connections[output_index]
+                connection_node, input_index, z = connections[output_index]
                 a_in = resolve(self.input_indices[(connection_node, input_index)], visited | {operator})
-                self.expanded_operators[operator] = a_in
-                return a_in
+                self.expanded_operators[operator] = sympy.exp(1j*self.k*z/Setup.c)*a_in
+                return self.expanded_operators[operator]
 
         for operator in self.input_operators.keys():
             resolve(operator, visited=set())
         self.inputs = set(self.input_indices.keys()) - dependent
 
-    def calculate(self, photon_inputs):
+    def calculate(self, photon_inputs, subset=None):
         # TODO:
         # 1) "automatically" select an integration range based on photon inputs
         # If photons are too far apart, than the integral might become very small
@@ -108,6 +110,7 @@ class Setup:
         t_0 = []
         operators = []
         input_indices = set()
+        debug = 1
         for i, (photon, input_index) in enumerate(photon_inputs):
             if input_index not in self.inputs:
                 raise ValueError("Attempting to create a photon at a non-input node")
@@ -120,7 +123,9 @@ class Setup:
                 Δ.append(photon.Δ)
                 t_0.append(photon.t_0)
                 operators.append(input_index)
-                expr *= self.expanded_operators[self.input_indices[input_index]]
+                input_operator = self.expanded_operators[self.input_indices[input_index]]
+                expr *= input_operator.subs({self.k:photon.ω_0}).evalf()
+                debug *= input_operator.subs({self.k:photon.ω_0})
                 t = symbols(f't_{i}', commutative=False)
                 expr *= t
 
@@ -133,7 +138,12 @@ class Setup:
 
         count_mapping = defaultdict(list)
         output_mapping = {v:i for i, v in enumerate(self.outputs)}
-        for term in expr.args:
+        if isinstance(expr, sympy.Mul):
+            args = [expr]
+        else:
+            args = expr.args
+
+        for term in args:
             coefficient = float(term.args[0])
             order = []
             count = [0]*len(output_mapping)
@@ -174,6 +184,9 @@ class Setup:
         func = LowLevelCallable(lib.β, user_data)
         n_photons = t_0.shape[0]
         for count, terms in count_mapping.items():
+            if subset is not None and count not in subset:
+                continue
+
             coefficients, norms, permutations = generate_term(terms)
 
             n_permutation = len(permutations[0])

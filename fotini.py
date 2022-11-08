@@ -28,6 +28,7 @@ class Data(ctypes.Structure):
 
 
 GaussianPhoton = namedtuple('GaussianPhoton', 't_0 ω_0 Δ n')
+CoherentBeam = namedtuple('CoherentBeam', 'ω_0 θ n_terms')
 BeamSplitter = namedtuple('BeamSplitter', 'R T')
 
 class Setup:
@@ -92,7 +93,7 @@ class Setup:
 
                 connection_node, input_index, z = connections[output_index]
                 a_in = resolve(self.input_indices[(connection_node, input_index)], visited | {operator})
-                self.expanded_operators[operator] = sympy.exp(1j*self.k*z/Setup.c)*a_in
+                self.expanded_operators[operator] = sympy.exp(-1j*self.k*z/Setup.c)*a_in
                 return self.expanded_operators[operator]
 
         for operator in self.input_operators.keys():

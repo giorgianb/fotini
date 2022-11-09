@@ -26,7 +26,7 @@ def generate_permutation(order):
 
     all_perms = []
     for p in product(*perms):
-        item = np.array(sum(p, start=()))
+        item = np.array(sum(p, ()))
         all_perms.append(item)
 
 

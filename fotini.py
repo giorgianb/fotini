@@ -119,7 +119,7 @@ class Setup:
                 raise ValueError(f"Multiple photon specifications for input {input_index}")
             input_indices.add(input_index)
 
-            for _ in range(photon.n):
+            for j in range(photon.n):
                 ω_0.append(photon.ω_0)
                 Δ.append(photon.Δ)
                 t_0.append(photon.t_0)
@@ -127,8 +127,9 @@ class Setup:
                 input_operator = self.expanded_operators[self.input_indices[input_index]]
                 expr *= input_operator.subs({self.k:photon.ω_0}).evalf()
                 debug *= input_operator.subs({self.k:photon.ω_0})
-                t = symbols(f't_{i}', commutative=False)
+                t = symbols(f't_{i}{j}', commutative=False)
                 expr *= t
+                debug *= t
 
 
         normalization = 1/utils.get_normalization_coefficient(operators)
@@ -136,7 +137,6 @@ class Setup:
         ω_0 = np.array(ω_0, dtype=ctypes.c_double)
         Δ = np.array(Δ, dtype=ctypes.c_double)
         t_0 = np.array(t_0, dtype=ctypes.c_double)
-
         count_mapping = defaultdict(list)
         output_mapping = {v:i for i, v in enumerate(self.outputs)}
         if isinstance(expr, sympy.Mul):
@@ -180,9 +180,9 @@ class Setup:
         data.Δ = (ctypes.c_double*len(Δ)).from_buffer(Δ);
 
         lib = ctypes.CDLL(os.path.abspath('integrands.so'))
-        lib.β.restype = ctypes.c_double
-        lib.β.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.c_void_p)
-        func = LowLevelCallable(lib.β, user_data)
+        lib.β_gaussian.restype = ctypes.c_double
+        lib.β_gaussian.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.c_void_p)
+        func = LowLevelCallable(lib.β_gaussian, user_data)
         n_photons = t_0.shape[0]
         for count, terms in count_mapping.items():
             if subset is not None and count not in subset:

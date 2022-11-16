@@ -26,10 +26,10 @@ def generate_permutation(order):
 
     all_perms = []
     for p in product(*perms):
-        item = np.array(sum(p, ()))
-        all_perms.append(item)
+        order = np.array(sum(p, ()))
+        perm = np.zeros(len(order), dtype=int)
+        perm[order] = np.arange(len(order))
+        all_perms.append(perm)
 
 
     return all_perms
-
-

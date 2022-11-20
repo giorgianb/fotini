@@ -191,6 +191,7 @@ class Setup:
 
             coefficients, norms, permutations = generate_term(terms)
             # Testing new faster integral function
+            # This will eventually be moved to C
             count_probabilities[count] = utils.integrate(
                     t_0,
                     ω_0,

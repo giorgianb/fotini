@@ -11,6 +11,7 @@ import ctypes
 import os
 from scipy import LowLevelCallable
 import utils
+import tqdm
 
 class Data(ctypes.Structure):
     _fields_ = [
@@ -189,6 +190,17 @@ class Setup:
                 continue
 
             coefficients, norms, permutations = generate_term(terms)
+            # Testing new faster integral function
+            count_probabilities[count] = utils.integrate(
+                    t_0,
+                    ω_0,
+                    Δ,
+                    np.array(coefficients),
+                    np.array(norms),
+                    np.stack(permutations, axis=0)
+            )
+            continue
+
 
             n_permutation = len(permutations[0])
             coeffs_real = np.array(coefficients).real.astype(ctypes.c_double)

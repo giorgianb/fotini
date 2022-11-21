@@ -95,3 +95,20 @@ plot results are shown in figure (5).
   <figcaption>Fig. 5 Mach-Zedner Interferometer Statistics</figcaption>
 </figure>
 
+## Four-Way Photon Interference
+Fotini also supports more complex set-ups in reasonable time. We can
+perform experiments with the set-up shown in figure (6).
+<figure align="center">
+  <img src="figs/four-way-setup.png" alt="Four-Way Set-Up">
+  <figcaption>Fig. 6 Mach-Zedner Interferometer</figcaption>
+</figure>
+
+By varying the time the photon on the third input arrives, we can produce
+the plot of the probabilities for each of the output cases seen in figure (7).
+As there are 25 labels, we omit the legend. Some probabilities may be
+completely overlapped by another probability due to symmetry in the output cases
+and thus might not be visible in the plot.
+<figure align="center">
+  <img src="figs/four-way.png" alt="Four-Way Interference Statistics">
+  <figcaption>Fig. 6 Four Way Interference Statistics</figcaption>
+</figure>

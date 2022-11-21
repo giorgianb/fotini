@@ -16,7 +16,7 @@ Fotini works through the efficient and correct handling of [Fock States](https:/
 It computes output statistics using continuous-mode quantum mechanics, and thus
 for the supported optical circuit elements, reproduces all important quantum
 mechanical effects. While it supports *general* spectral amplitudes for a
-particular number state, it works particularly efficiently with number states
+particular fock state, it works particularly efficiently with spectral amplitudes
 expressible as `C_1*exp(Σa_it_i^2 + Σb_i*t_i + c)`. These covers a important
 variety of real-world usage.
 
@@ -101,7 +101,7 @@ Fotini also supports more complex set-ups in reasonable time. We can
 perform experiments with the set-up shown in figure (6).
 <figure align="center">
   <img src="figs/four-way-setup.png" alt="Four-Way Set-Up">
-  <figcaption>Fig. 6 Mach-Zedner Interferometer</figcaption>
+  <figcaption>Fig. 6 Four-Way Interference Set-Up</figcaption>
 </figure>
 
 By varying the time the photon on the third input arrives, we can produce

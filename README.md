@@ -71,9 +71,27 @@ see much more complex interference behaviour arising from more photons at each i
   <figcaption>Fig. 3 Hong-Ou Mandel Effect with Multiple Photons at Each Input</figcaption>
 </figure>
 
+
+The code to produce perform the calculations and produce the figure is in `examples/hom-1.py`. 
+
 ## Mach-Zender Interferometer
 The Mach-Zender interfemeter set-up can be seen in figure (4). 
 <figure align="center">
   <img src="figs/mz-setup.png" alt="Mach-Zender Interferometer Set-Up">
   <figcaption>Fig. 4 Mach-Zedner Interferometer</figcaption>
 </figure>
+
+There are two possible cases:
+1. A photon is measured in the upper output.
+2. A photon is measured in the right output.
+
+We place a photon with angular frequency `ω=1 Mrad/s`, bandwidth `Δ=1` on the
+first input of the beam-splitter arriving at time `0` at the input. We then
+vary the distance `d` and plot how the probability of each of the output cases changes. The
+plot results are shown in figure (5).
+
+<figure align="center">
+  <img src="figs/mz-0.png" alt="Mach-Zender Interferometer Results">
+  <figcaption>Fig. 5 Mach-Zedner Interferometer Statistics</figcaption>
+</figure>
+

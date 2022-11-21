@@ -50,3 +50,18 @@ is a plot of the results.
 </figure>
 
 The code to produce perform the calculations and produce the figure is in `examples/hom-0.py`. 
+
+
+### Hong-Ou Mandel Effect with More Photons
+With fotini, we can run experiments with more complex inputs that might not be
+easily achievable in the real-world. Using the same experimental set-up as in
+figure (1), we can instead specify the following inputs:
+1.  For `Φ_1`, we place *2* Gaussian Photons, with angular frequency `ω=1k rad/s`, bandwidth `Δ=1`, and arrival time `t_0=0`. 
+2. For `Φ_2`, we place *3* Gaussian Photons, with angular frequency `ω=1k rad/s`, bandwidth `Δ=1`, and arrival time `t_0=Δt`. 
+
+We then vary `Δt` and see how the output probabilities for the various possible
+output-states before. As we are now placing more photons at each inputs, there
+are more possible output states. In the plot, the output state `(n, m)`
+represents that `n` photons were measured at the upper output and `m` photons
+were measured on the right output. Figure (3) is a plot of the results. We can
+see much more complex interference behaviour arising from more photons at each input.

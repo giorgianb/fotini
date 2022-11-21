@@ -33,7 +33,7 @@ for distance in tqdm.tqdm(distances):
 
 plt.figure(figsize=(10, 5))
 plt.plot(distances, probs[(0, 1)], 'r', label=f'(0, 1)')
-plt.plot(distances, probs[(1, 0)], 'k', label=f'(0, 1)')
+plt.plot(distances, probs[(1, 0)], 'k', label=f'(1, 0)')
 
 plt.title('Mach-Zender Interferometer')
 plt.ylim(0, 1.1)

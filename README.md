@@ -6,7 +6,7 @@ of fotini is to enable the verification and debugging of optical circuits, enabl
 following workflow:
 1. Design an optical circuits with the desired properties.
 2. Code the optical circuit in fotini.
-3. Use fotini to generate the expected output statistics.
+3. Use fotini to generate the expected output statistics. Verify that the desired properties hold.
 4. Measure experimental output statistics, and see whether they are consistent with those computed by fotini.
 5. Debug, using fotini as a debugging aide to identify problems in the physical setup.
 

@@ -65,3 +65,11 @@ are more possible output states. In the plot, the output state `(n, m)`
 represents that `n` photons were measured at the upper output and `m` photons
 were measured on the right output. Figure (3) is a plot of the results. We can
 see much more complex interference behaviour arising from more photons at each input.
+
+
+## Mach-Zender Interferometer
+The Mach-Zender interfemeter set-up can be seen in figure (4). 
+<figure align="center">
+  <img src="figs/mz-setup.png" alt="Mach-Zender Interferometer Set-Up">
+  <figcaption>Fig. 4 Mach-Zedner Interferometer</figcaption>
+</figure>

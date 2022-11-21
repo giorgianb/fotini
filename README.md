@@ -23,8 +23,8 @@ variety of real-world usage.
 # Example Usage
 ## Reproduction of Hong-Ou Mandel Effect
 The Hong-Ou Mandel effect has the set-up seen in figure (1).
-<figure>
-  <img src="figs/hom-setup.png" alt="HOM Setup", style="width: 100%">
+<figure align="center">
+  <img src="figs/hom-setup.png" alt="HOM Setup">
   <figcaption>Fig. 1 Hong-Ou Mandel Effect Setup</figcaption>
 </figure>
 
@@ -44,8 +44,8 @@ has angular frequency `ω=1k rad/s` and bandwidth `Δ=1`, but arrives at time `�
 a measurable inteference effect appears, and the case in which one photon is measured at each output
 is no longer possible. We sample a variety of `Δt` and plot the probability of the three cases. Figure (2)
 is a plot of the results.
-<figure>
-  <img src="figs/hom-0.png" alt="HOM-0 Results", style="width: 100%">
+<figure align="center">
+  <img src="figs/hom-0.png" alt="HOM-0 Results">
   <figcaption>Fig. 2 Hong-Ou Mandel Effect with a Single Photon at Each Input</figcaption>
 </figure>
 

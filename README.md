@@ -112,3 +112,5 @@ and thus might not be visible in the plot.
   <img src="figs/four-way.png" alt="Four-Way Interference Statistics">
   <figcaption>Fig. 6 Four Way Interference Statistics</figcaption>
 </figure>
+
+The code to produce perform the calculations and produce the figure is in `examples/four-way.py`. 

@@ -66,6 +66,10 @@ represents that `n` photons were measured at the upper output and `m` photons
 were measured on the right output. Figure (3) is a plot of the results. We can
 see much more complex interference behaviour arising from more photons at each input.
 
+<figure align="center">
+  <img src="figs/hom-1.png" alt="HOM-1 Results">
+  <figcaption>Fig. 3 Hong-Ou Mandel Effect with Multiple Photons at Each Input</figcaption>
+</figure>
 
 ## Mach-Zender Interferometer
 The Mach-Zender interfemeter set-up can be seen in figure (4). 
